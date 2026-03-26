@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: barbershop-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234b
+      POSTGRES_DB: barbershop
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  backend:
+    build: ./barbershop-backend
+    container_name: barbershop-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: 1234b
+      DB_DATABASE: barbershop
+      JWT_SECRET: super_secret_key
+      JWT_EXPIRES_IN: 7d
+      COOKIE_SECRET: my_cookie_secret
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    restart: always
+
+  frontend:
+    build: ./barbershop-frontend
+    container_name: barbershop-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000/api/v1
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  postgres_data:
