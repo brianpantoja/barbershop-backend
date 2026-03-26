@@ -13,7 +13,7 @@ import { AppointmentResponseDto } from './dto/appointment-response.dto';
 import { AvailabilityService } from './availability.service';
 import { ServicesService } from '../services/services.service';
 import { UsersService } from '../users/users.service';
-
+import { EmailService } from '../email/email.service';
 @Injectable()
 export class AppointmentsService {
   constructor(
@@ -22,6 +22,7 @@ export class AppointmentsService {
     private availabilityService: AvailabilityService,
     private servicesService: ServicesService,
     private usersService: UsersService,
+    private emailService: EmailService,
   ) {}
 
   async create(
@@ -62,6 +63,52 @@ export class AppointmentsService {
     });
 
     const saved = await this.appointmentsRepository.save(appointment);
+    try {
+      // Obtener datos del cliente y negocio
+      const client = await this.usersService.findById(clientId);
+      const business = await this.usersService.findById(service.businessId);
+
+      // Validar que existan antes de usar
+      if (!client) {
+        console.error('Cliente no encontrado:', clientId);
+        return this.mapToResponseDto(saved);
+      }
+
+      if (!business) {
+        console.error('Negocio no encontrado:', service.businessId);
+        return this.mapToResponseDto(saved);
+      }
+
+      const dateStr = new Date(createDto.date).toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+
+      // Email al cliente
+      await this.emailService.sendBookingConfirmation(
+        client.email,
+        client.name,
+        service.name,
+        dateStr,
+        createDto.startTime,
+      );
+
+      // Email al negocio
+      await this.emailService.sendBusinessNotification(
+        business.email,
+        business.businessName || business.name,
+        client.name,
+        service.name,
+        dateStr,
+        createDto.startTime,
+      );
+    } catch (error) {
+      // No interrumpir el flujo si falla el email
+      console.error('Error sending email notifications:', error);
+    }
+
     return this.mapToResponseDto(saved);
   }
 
