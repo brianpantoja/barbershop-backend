@@ -1,70 +1,64 @@
-# miTurno - Backend
+# Barbershop Backend
 
-Backend de la aplicación de reserva de citas para barberías. Construido con NestJS, TypeORM y PostgreSQL.
+API del sistema de reserva de citas para barberías. Hecha con NestJS, TypeORM y PostgreSQL.
 
-##  Tecnologías
+## Qué usa
 
-- **Framework:** NestJS
-- **Base de datos:** PostgreSQL con TypeORM
-- **Autenticación:** JWT con cookies HttpOnly
-- **Notificaciones:** Resend (emails)
-- **Contenedores:** Docker
+- NestJS
+- TypeORM + PostgreSQL
+- JWT (con cookies HttpOnly)
+- Resend para emails
+- Docker
 
-##  Instalación local
+## Cómo correrlo
 
 ```bash
-# Clonar repositorio
-git clone https://github.com/TU_USUARIO/barbershop-backend.git
+git clone https://github.com/brianpantoja/barbershop-backend.git
 cd barbershop-backend
-
-# Instalar dependencias
 npm install --legacy-peer-deps
-
-# Copiar variables de entorno
 cp .env.example .env
-
-# Configurar .env con tus credenciales
-# DB_PASSWORD, JWT_SECRET, etc.
-
-# Ejecutar en desarrollo
+# editar .env con tus datos (DB, JWT, etc.)
 npm run start:dev
 
+El puerto por defecto es 3000. La API queda en http://localhost:3000/api/v1.
 
-## 🐳 Docker
+Endpoints principales
 
+POST /api/v1/auth/login → login
+POST /api/v1/users → registrar usuario
+GET /api/v1/services/public/:id → ver servicios (público)
+POST /api/v1/appointments → crear cita
+GET /api/v1/appointments/business → citas del negocio
+GET /api/v1/appointments/client → citas del cliente
 
-# Levantar todos los servicios (backend + frontend + base de datos)
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f
-
-# Detener servicios
-docker-compose down
-
-
-## 📁 Estructura del proyecto
+Estructura
 
 src/
 ├── modules/
-│   ├── auth/          # Autenticación JWT
-│   ├── users/         # Gestión de usuarios
-│   ├── services/      # CRUD de servicios
-│   ├── business-hours/# Horarios de atención
-│   ├── appointments/  # Reserva de citas
-│   └── email/         # Notificaciones con Resend
-├── config/            # Configuración de la app
-└── main.ts            # Punto de entrada
+│ ├── auth/
+│ ├── users/
+│ ├── services/
+│ ├── business-hours/
+│ ├── appointments/
+│ └── email/
+├── config/
+└── main.ts
 
+Docker
 
+Para levantar todo (backend + frontend + postgres):
 
+docker-compose up -d
 
+Para logs:
 
-##  Endpoints principales
+docker-compose logs -f
 
-- **POST** `/api/v1/auth/login` - Iniciar sesión
-- **POST** `/api/v1/users` - Registrar usuario
-- **GET** `/api/v1/services/public/:id` - Ver servicios públicos
-- **POST** `/api/v1/appointments` - Crear cita
-- **GET** `/api/v1/appointments/business` - Citas del negocio
-- **GET** `/api/v1/appointments/client` - Citas del cliente
+Para parar:
+
+docker-compose down
+
+Repos
+
+Backend: este repo
+Frontend: https://github.com/brianpantoja/barbershop-frontend
